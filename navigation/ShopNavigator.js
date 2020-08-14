@@ -18,7 +18,7 @@ const ShopNavigator = () => {
           headerTintColor: Platform.OS === 'android' ? "white" : Colors.primary,
         }}
       >
-        <Stack.Screen
+        <Stack.Screen options={{title: 'All Products'}}
           name="ProductsOverview"
           component={ProductsOverviewScreens}
         />
