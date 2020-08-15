@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { combineReducers, createStore } from "redux";
 import { Provider } from "react-redux";
 
-import { productsReducer } from "./store/reducers/products";
+import productsReducer from "./store/reducers/products";
 import ShopNavigator from './navigation/ShopNavigator';
 
 export default function App() {
