@@ -18,7 +18,7 @@ const ProductsOverviewScreen = ({ navigation }) => {
           <Item
             title="Cart"
             iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-            onPress={() => {}}
+            onPress={() => {navigation.navigate('Cart')}}
           />
         </HeaderButtons>
       ),
