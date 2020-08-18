@@ -5,7 +5,7 @@ import { Platform } from "react-native";
 
 import ProductsOverviewScreens from "../screens/shop/ProductsOverviewScreen";
 import ProductDetailScreen from "../screens/shop/ProductDetailScreen";
-import Colors from "../constant/Colors";
+import Colors from "../constants/Colors";
 
 const Stack = createStackNavigator();
 
@@ -13,7 +13,7 @@ const ShopNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        options={{
+        screenOptions={{
           headerStyle: {
             backgroundColor: Platform.OS === 'android' ? Colors.primary : '',
           },

@@ -7,29 +7,36 @@ import {
   Button,
   StyleSheet,
 } from "react-native";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
+
+import * as cartActions from '../../store/actions/cart';
 
 const ProductDetailScreen = ({ navigation, route }) => {
-    const { productId, title } = route.params;
-    const product = useSelector(state => state.products.availableProducts.find(p => p.id === productId));
+  const dispatch = useDispatch();
+  const { productId, title } = route.params;
+  const product = useSelector((state) =>
+    state.products.availableProducts.find((p) => p.id === productId)
+  );
 
-    useLayoutEffect(() => {
-        navigation.setOptions({ headerTitle: title });
-      }, [navigation, route]);
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerTitle: title });
+  }, [navigation, route]);
 
-    return <ScrollView>
-        <Image style={styles.image} source={{uri: product.imageUrl}} />
-        <Button title="Add to Cart" onPress={() => {}} />
-    <Text>${product.price.toFixed(2)}</Text>
-    <Text>{product.description}</Text>
+  return (
+    <ScrollView>
+      <Image style={styles.image} source={{ uri: product.imageUrl }} />
+      <Button title="Add to Cart" onPress={() => dispatch(cartActions.addToCart(product))} />
+      <Text>${product.price.toFixed(2)}</Text>
+      <Text>{product.description}</Text>
     </ScrollView>
-}; 
+  );
+};
 
 const styles = StyleSheet.create({
-    image: {
-        height: '60%',
-        width: '100%'
-    }
+  image: {
+    height: "60%",
+    width: "100%",
+  },
 });
 
 export default ProductDetailScreen;

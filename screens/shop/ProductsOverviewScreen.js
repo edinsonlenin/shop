@@ -1,12 +1,30 @@
-import React from "react";
-import { FlatList, Text } from "react-native";
-import { useSelector } from "react-redux";
+import React, { useLayoutEffect } from "react";
+import { FlatList, Platform } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
+import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 import ProductItem from "../../components/shop/ProductItem";
+import * as cartActions from "../../store/actions/cart";
+import HeaderButton from "../../components/UI/HeaderButton";
 
 const ProductsOverviewScreen = ({ navigation }) => {
   const products = useSelector((state) => state.products.availableProducts);
-  console.log("ProductsOverView", products);
+  const dispatch = useDispatch();
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title="Cart"
+            iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
+            onPress={() => {}}
+          />
+        </HeaderButtons>
+      ),
+    });
+  }, [navigation]);
+
   return (
     <FlatList
       keyExtractor={(item) => item.id}
@@ -16,8 +34,13 @@ const ProductsOverviewScreen = ({ navigation }) => {
           image={item.imageUrl}
           title={item.title}
           price={item.price}
-          onViewDetail={() => navigation.navigate('ProductDetail', {productId: item.id, title: item.title})}
-          onAddToCart={() => console.log("add to car")}
+          onViewDetail={() =>
+            navigation.navigate("ProductDetail", {
+              productId: item.id,
+              title: item.title,
+            })
+          }
+          onAddToCart={() => dispatch(cartActions.addToCart(item))}
         />
       )}
     />
