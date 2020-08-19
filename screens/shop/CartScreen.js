@@ -35,7 +35,7 @@ const CartScreen = props => {
           color={Colors.accent}
           disabled={cartItems.length === 0}
           onPress={()=> {
-            dispatch(ordersActions.addOrder(items, cartTotalAmount));
+            dispatch(ordersActions.addOrder(cartItems, cartTotalAmount));
           }}
            />
       </View>

@@ -1,16 +1,43 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useLayoutEffect } from 'react';
+import { Platform, StyleSheet, Text } from 'react-native';
+import { useSelector } from 'react-redux';
+import { FlatList } from 'react-native-gesture-handler';
+import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
-const OrdersScreen = props => {
+import HeaderButton from "../../components/UI/HeaderButton";
+
+const OrdersScreen = ({ navigation }) => {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title="Menu"
+            iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
+            onPress={() => {navigation.toggleDrawer();}}
+          />
+        </HeaderButtons>
+      ),
+    });
+  }, [navigation]);
+
+  const orders = useSelector(state => state.orders.orders);
+  console.log(orders, 'ordersscreen');
   return (
-    <View style={styles.container}></View>
+    <FlatList
+      keyExtractor={item => item.id}
+      data={orders}
+      renderItem={({item}) => {
+      <Text>{item.totalAmount}</Text>
+      }}
+    />
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-
+    
   }
 });
 
-export const OrdersScreen;
+export default OrdersScreen;
