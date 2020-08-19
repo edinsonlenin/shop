@@ -5,10 +5,10 @@ import { View, StyleSheet, Button, Text, FlatList } from 'react-native';
 import Colors from '../../constants/Colors';
 import CartItem from '../../components/shop/CartItem';
 import * as cartActions from '../../store/actions/cart';
+import * as ordersActions from '../../store/actions/orders';
 
 const CartScreen = props => {
   const cartTotalAmount = useSelector(state => state.cart.totalAmount);
-  console.log(cartTotalAmount, 'aca');
   const cartItems = useSelector(state => {
     const itemsTransformed = [];
     const items = state.cart.items;
@@ -34,7 +34,9 @@ const CartScreen = props => {
           title="Order Now"
           color={Colors.accent}
           disabled={cartItems.length === 0}
-          onPress={()=> {}}
+          onPress={()=> {
+            dispatch(ordersActions.addOrder(items, cartTotalAmount));
+          }}
            />
       </View>
       <View>
