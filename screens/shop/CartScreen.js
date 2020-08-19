@@ -7,6 +7,7 @@ import CartItem from '../../components/shop/CartItem';
 
 const CartScreen = props => {
   const cartTotalAmount = useSelector(state => state.cart.totalAmount);
+  console.log(cartTotalAmount, 'aca');
   const cartItems = useSelector(state => {
     const itemsTransformed = [];
     const items = state.cart.items;
@@ -20,8 +21,8 @@ const CartScreen = props => {
       });
     }
     return itemsTransformed;
-  })
-
+  });
+  console.log(cartItems);
   return (
     <View style={styles.container}>
       <View style={styles.summary}>
@@ -32,6 +33,7 @@ const CartScreen = props => {
           title="Order Now"
           color={Colors.accent}
           disabled={cartItems.length === 0}
+          onPress={()=> {}}
            />
       </View>
       <View>
@@ -73,4 +75,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export const CartScreen;
+export default CartScreen;

@@ -5,7 +5,7 @@ import { Platform } from "react-native";
 
 import ProductsOverviewScreens from "../screens/shop/ProductsOverviewScreen";
 import ProductDetailScreen from "../screens/shop/ProductDetailScreen";
-import Cart, { CartScreen } from "../screens/shop/CartScreen";
+import CartScreen from "../screens/shop/CartScreen";
 import Colors from "../constants/Colors";
 
 const Stack = createStackNavigator();
