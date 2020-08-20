@@ -1,8 +1,9 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Platform } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import ProductsOverviewScreens from "../screens/shop/ProductsOverviewScreen";
 import ProductDetailScreen from "../screens/shop/ProductDetailScreen";
@@ -52,12 +53,36 @@ const OrdersNavigator = () => (
 
 const MyDrawer = () => {
   return (
-    <Drawer.Navigator drawerContentOptions={{activeTintColor: Colors.primary}}>
-      <Drawer.Screen name="Products" component={ProductsNavigator} />
-      <Drawer.Screen name="Orders" component={OrdersNavigator} options={{ drawerLabel: 'View Orders' }}/>
+    <Drawer.Navigator
+      drawerContentOptions={{ activeTintColor: Colors.primary }}
+    >
+      <Drawer.Screen name="Products" component={ProductsNavigator} options={{
+          drawerLabel: "All Products",
+          drawerIcon: (drawerConfig) => (
+            <Ionicons
+              name={Platform.OS === "android" ? "md-cart" : "ios-cart"}
+              size={23}
+              color={drawerConfig.color}
+            />
+          ),
+        }}/>
+      <Drawer.Screen
+        name="Orders"
+        component={OrdersNavigator}
+        options={{
+          drawerLabel: "View Orders",
+          drawerIcon: (drawerConfig) => (
+            <Ionicons
+              name={Platform.OS === "android" ? "md-list" : "ios-list"}
+              size={23}
+              color={drawerConfig.color}
+            />
+          ),
+        }}
+      />
     </Drawer.Navigator>
   );
-}
+};
 
 const ShopNavigator = () => {
   return <NavigationContainer>{MyDrawer()}</NavigationContainer>;

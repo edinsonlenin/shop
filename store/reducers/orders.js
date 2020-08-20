@@ -10,7 +10,7 @@ const ordersReducer = (state=initialState, action) => {
     case(ADD_ORDER):
       const newOrder = new Order(new Date().toString(), action.order.items, action.order.totalAmount, new Date());
       console.log(newOrder, 'ordersReducer');
-      return { ...state, orders: { ...state.orders.concat(newOrder) } };
+      return { ...state, orders: [...state.orders.concat(newOrder)] };
   }
   return state;
 };
