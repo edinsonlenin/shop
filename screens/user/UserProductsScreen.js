@@ -11,15 +11,15 @@ import { deleteProduct } from '../../store/actions/products';
 const UserProductsScreen = ({navigation}) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      // headerRight: () => (
-      //   <HeaderButtons HeaderButtonComponent={HeaderButton}>
-      //     <Item
-      //       title="Cart"
-      //       iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-      //       onPress={() => {navigation.navigate('Cart')}}
-      //     />
-      //   </HeaderButtons>
-      // ),
+      headerRight: () => (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title="Add"
+            iconName={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
+            onPress={() => {navigation.navigate('EditProduct')}}
+          />
+        </HeaderButtons>
+      ),
       headerLeft: () => (
         <HeaderButtons HeaderButtonComponent={HeaderButton}>
           <Item
@@ -33,7 +33,7 @@ const UserProductsScreen = ({navigation}) => {
   }, [navigation]);
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.userProducts);
-  console.log(products, 'UserProductsScreen');
+  const onEditHandler = id => navigation.navigate('EditProduct', {productId: id});
   return (
     <FlatList
       keyExtractor={(item) => item.id}
@@ -44,12 +44,12 @@ const UserProductsScreen = ({navigation}) => {
           image={item.imageUrl}
           title={item.title}
           price={item.price}
-          onSelect={() => {}}
+          onSelect={() => onEditHandler(item.id)}
         >
           <Button
             color={Colors.primary}
             title="Edit"
-            onPress={() => {}}
+            onPress={() => onEditHandler(item.id)}
           ></Button>
           <Button
             color={Colors.primary}
