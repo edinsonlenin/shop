@@ -1,11 +1,12 @@
 import React, { useLayoutEffect } from "react";
-import { FlatList, Platform } from "react-native";
+import { FlatList, Platform, Button } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
+import HeaderButton from "../../components/UI/HeaderButton";
 import ProductItem from "../../components/shop/ProductItem";
 import * as cartActions from "../../store/actions/cart";
-import HeaderButton from "../../components/UI/HeaderButton";
+import Colors from "../../constants/Colors";
 
 const ProductsOverviewScreen = ({ navigation }) => {
   const products = useSelector((state) => state.products.availableProducts);
@@ -17,8 +18,10 @@ const ProductsOverviewScreen = ({ navigation }) => {
         <HeaderButtons HeaderButtonComponent={HeaderButton}>
           <Item
             title="Cart"
-            iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-            onPress={() => {navigation.navigate('Cart')}}
+            iconName={Platform.OS === "android" ? "md-cart" : "ios-cart"}
+            onPress={() => {
+              navigation.navigate("Cart");
+            }}
           />
         </HeaderButtons>
       ),
@@ -26,13 +29,22 @@ const ProductsOverviewScreen = ({ navigation }) => {
         <HeaderButtons HeaderButtonComponent={HeaderButton}>
           <Item
             title="Menu"
-            iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
-            onPress={() => {navigation.toggleDrawer();}}
+            iconName={Platform.OS === "android" ? "md-menu" : "ios-menu"}
+            onPress={() => {
+              navigation.toggleDrawer();
+            }}
           />
         </HeaderButtons>
       ),
     });
   }, [navigation]);
+
+  const navigateToDetail = (productId, title) => {
+    navigation.navigate("ProductDetail", {
+      productId,
+      title,
+    })
+  };
 
   return (
     <FlatList
@@ -43,14 +55,19 @@ const ProductsOverviewScreen = ({ navigation }) => {
           image={item.imageUrl}
           title={item.title}
           price={item.price}
-          onViewDetail={() =>
-            navigation.navigate("ProductDetail", {
-              productId: item.id,
-              title: item.title,
-            })
-          }
-          onAddToCart={() => dispatch(cartActions.addToCart(item))}
-        />
+          onSelect={() => navigateToDetail(item.id, item.title)}
+        >
+          <Button
+            color={Colors.primary}
+            title="View Details"
+            onPress={() => navigateToDetail(item.id, item.title)}
+          ></Button>
+          <Button
+            color={Colors.primary}
+            title="To Cart"
+            onPress={() => dispatch(cartActions.addToCart(item))}
+          ></Button>
+        </ProductItem>
       )}
     />
   );
