@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 import HeaderButton from "../../components/UI/HeaderButton";
-import OrderItem from '../../components/shop/OrderItem';
+import OrderItem from "../../components/shop/OrderItem";
 
 const OrdersScreen = ({ navigation }) => {
   React.useLayoutEffect(() => {
@@ -24,12 +24,17 @@ const OrdersScreen = ({ navigation }) => {
   }, [navigation]);
 
   const orders = useSelector((state) => state.orders.orders);
-  console.log(orders, "ordersscreen");
   return (
     <FlatList
       data={orders}
       keyExtractor={(item) => item.id}
-      renderItem={({item}) => <OrderItem amount={item.totalAmount} date={item.readableDate} items={item.items}/>}
+      renderItem={({ item }) => (
+        <OrderItem
+          amount={item.totalAmount}
+          date={item.readableDate}
+          items={item.items}
+        />
+      )}
     />
   );
 };

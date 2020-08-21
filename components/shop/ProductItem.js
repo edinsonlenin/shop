@@ -6,6 +6,8 @@ import {
   Platform,
 } from "react-native";
 
+import Card from '../UI/Card';
+
 const ProductItem = ({ image, title, price, onSelect, children }) => {
   let TouchableCmp = TouchableOpacity;
 
@@ -14,28 +16,20 @@ const ProductItem = ({ image, title, price, onSelect, children }) => {
   }
   return (
     <TouchableCmp onPress={onSelect} useForeground>
-      <View style={styles.product}>
+      <Card style={styles.product}>
         <Image source={{ uri: image }} style={styles.image} />
         <View style={styles.detail}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.price}>{price.toFixed(2)}</Text>
         </View>
         <View style={styles.buttonsContainer}>{children}</View>
-      </View>
+      </Card>
     </TouchableCmp>
   );
 };
 
 const styles = StyleSheet.create({
   product: {
-    flex: 1,
-    shadowColor: "black",
-    shadowOpacity: 0.26,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    elevation: 5,
-    borderRadius: 10,
-    backgroundColor: "white",
     height: 300,
     margin: 20,
     overflow: "hidden",
