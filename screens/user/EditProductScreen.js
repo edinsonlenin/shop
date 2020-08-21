@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -6,25 +6,29 @@ import {
   ScrollView,
   TextInput,
   Platform,
-  Alert
+  Alert,
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import { useSelector, useDispatch } from "react-redux";
 
 import HeaderButton from "../../components/UI/HeaderButton";
-import Input from '../../components/UI/Input';
+import Input from "../../components/UI/Input";
 import * as productActions from "../../store/actions/products";
 
-const FORM_INPUT_CHANGE = 'FORM_INPUT_CHANGE';
+const FORM_INPUT_CHANGE = "FORM_INPUT_CHANGE";
 
 const formReducer = (state, action) => {
   if (action.type === FORM_INPUT_CHANGE) {
-    const validities = { ...state.inputValidities, [action.input]: action.validity};
+    const validities = {
+      ...state.inputValidities,
+      [action.input]: action.validity,
+    };
     let formValid = true;
     for (let key in validities) {
       formValid = formValid && validities[key];
     }
-    return {...state,
+    return {
+      ...state,
       isFormValid: formValid,
       inputValues: { ...state.inputValues, [action.input]: action.value },
       inputValidities: validities,
@@ -57,107 +61,107 @@ const EditProductScreen = ({ route, navigation }) => {
       price: selectedProduct ? true : false,
       description: selectedProduct ? true : false,
     },
-    isFormValid: selectedProduct ? true : false
+    isFormValid: selectedProduct ? true : false,
   });
 
-  const onChangeInput = (input, text) => {
-    let isValid = true;
-    if (text.trim().length === 0) {
-      isValid = false;
-    }
-    formDispatch({
-      type: FORM_INPUT_CHANGE,
-      input: input,
-      value: text,
-      validity: isValid
-    });
-  };
+  const onChangeInputHandler = useCallback(
+    (input, text, isValid) => {
+      formDispatch({
+        type: FORM_INPUT_CHANGE,
+        input: input,
+        value: text,
+        validity: isValid,
+      });
+    },
+    [formDispatch]
+  );
 
   const save = () => {
-    if (!formState.isFormValid){
-      Alert.alert('Error', 'Invalid form entries', [{text: 'Ok'}])
+    if (!formState.isFormValid) {
+      Alert.alert("Error", "Invalid form entries", [{ text: "Ok" }]);
       return;
     }
     if (productId) {
       dispatch(
-        productActions.updateProduct(productId, formState.inputValues.title, formState.inputValues.imageUrl, formState.inputValues.description)
+        productActions.updateProduct(
+          productId,
+          formState.inputValues.title,
+          formState.inputValues.imageUrl,
+          formState.inputValues.description
+        )
       );
     } else {
-      dispatch(productActions.addProduct(formState.inputValues.title, formState.inputValues.imageUrl, formState.inputValues.description, +formState.inputValues.price));
+      dispatch(
+        productActions.addProduct(
+          formState.inputValues.title,
+          formState.inputValues.imageUrl,
+          formState.inputValues.description,
+          +formState.inputValues.price
+        )
+      );
     }
     navigation.goBack();
   };
 
   React.useLayoutEffect(() => {
-  navigation.setOptions({
-    title: productId ? "Edit Product" : "Add Product",
-    headerRight: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Save"
-          iconName={
-            Platform.OS === "android" ? "md-checkmark" : "ios-checkmark"
-          }
-          onPress={() => {
-            save();
-          }}
-        />
-      </HeaderButtons>
-    ),
-  });
+    navigation.setOptions({
+      title: productId ? "Edit Product" : "Add Product",
+      headerRight: () => (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title="Save"
+            iconName={
+              Platform.OS === "android" ? "md-checkmark" : "ios-checkmark"
+            }
+            onPress={() => {
+              save();
+            }}
+          />
+        </HeaderButtons>
+      ),
+    });
   }, [navigation, formState, productId, dispatch]);
   return (
     <ScrollView>
       <View style={styles.form}>
         <Input
-          id='title'
-          label='Title'
-          errorMessage='Title is required!'
-          initialValue={selectedProduct ? selectedProduct.title : ''}
-          initialValidity={selectedProduct ? true : false}
+          id="title"
+          label="Title"
+          errorMessage="Title is required!"
+          initialValue={selectedProduct ? selectedProduct.title : ""}
+          initialValidity={!!selectedProduct}
+          onChangeInput={onChangeInputHandler}
+          autoCapitalize="sentences"
+          required
         />
-        <View style={styles.formControl}>
-          <Text style={styles.label}>Title</Text>
-          <TextInput
-            style={styles.input}
-            value={formState.inputValues.title}
-            onChangeText={onChangeInput.bind(this, 'title')}
-            autoCapitalize='sentences'
-            returnKeyType='next'
-          />
-          { !formState.inputValidities.title ? <Text style={{color: 'red'}}>*Field is required!</Text> : null }
-        </View>
-        <View style={styles.formControl}>
-          <Text style={styles.label}>Image Url</Text>
-          <TextInput
-            style={styles.input}
-            value={formState.inputValues.imageUrl}
-            onChangeText={onChangeInput.bind(this, 'imageUrl')}
-          />
-          { !formState.inputValidities.imageUrl ? <Text style={{color: 'red'}}>*Field is required!</Text> : null }
-        </View>
+        <Input
+          id="imageUrl"
+          label="Image"
+          errorMessage="Image is required!"
+          initialValue={selectedProduct ? selectedProduct.imageUrl : ""}
+          initialValidity={!!selectedProduct}
+          onChangeInput={onChangeInputHandler}
+        />
         {selectedProduct ? null : (
-          <View style={styles.formControl}>
-            <Text style={styles.label}>Price</Text>
-            <TextInput
-              style={styles.input}
-              value={formState.inputValues.price}
-            onChangeText={onChangeInput.bind(this, 'price')}
-              keyboardType='decimal-pad'
-            />
-          { !formState.inputValidities.price ? <Text style={{color: 'red'}}>*Field is required!</Text> : null }
-          </View>
-        )}
-        <View style={styles.formControl}>
-          <Text style={styles.label}>Description</Text>
-          <TextInput
-            style={styles.input}
-            value={formState.inputValues.description}
-            onChangeText={onChangeInput.bind(this, 'description')}
+          <Input
+            id="price"
+            label="Price"
+            errorMessage="Price is required!"
+            initialValue={selectedProduct ? selectedProduct.price : ""}
+            initialValidity={!!selectedProduct}
+            onChangeInput={onChangeInputHandler}
+            keyboardType="decimal-pad"
+            required
           />
-          { !formState.inputValidities.description ? <Text style={{color: 'red'}}>*Field is required!</Text> : null }
-
-        </View>
+        )}
+        <Input
+          id="description"
+          label="Description"
+          errorMessage="Description is required!"
+          initialValue={selectedProduct ? selectedProduct.description : ""}
+          initialValidity={!!selectedProduct}
+          onChangeInput={onChangeInputHandler}
+        />
       </View>
     </ScrollView>
   );
@@ -168,7 +172,7 @@ const styles = StyleSheet.create({
     margin: 20,
   },
   formControl: {
-    width: "100%"
+    width: "100%",
   },
   label: {
     fontFamily: "open-sans-bold",
