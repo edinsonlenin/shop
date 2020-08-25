@@ -9,10 +9,10 @@ const ordersReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_ORDER:
       const newOrder = new Order(
-        new Date().toString(),
+        action.order.id,
         action.order.items,
         action.order.totalAmount,
-        new Date()
+        action.order.date
       );
       return { ...state, orders: [...state.orders.concat(newOrder)] };
   }

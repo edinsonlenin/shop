@@ -35,7 +35,6 @@ const Input = (props) => {
 
   const changeTextHandler = (text) => {
     let isValid = validate(text);
-    console.log(required, isValid, id);
     dispatch({
       type: INPUT_CHANGE,
       value: text,
@@ -47,8 +46,6 @@ const Input = (props) => {
     isValid: initialValidity,
     touched: false
   });
-
-  console.log(inputState, id);
 
   const lostFocusHandler = () => {
     let isValid = validate(inputState.value);
@@ -71,7 +68,7 @@ const Input = (props) => {
         onBlur={lostFocusHandler}
       />
       {!inputState.isValid && inputState.touched ? (
-        <Text style={{ color: "red" }}>{errorMessage}</Text>
+        <View style={styles.errorContainer}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : null}
     </View>
   );
@@ -91,6 +88,14 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     borderBottomWidth: 1,
   },
+  errorContainer: {
+    marginVertical: 5
+  },
+  errorText: {
+    fontFamily: 'open-sans',
+    fontSize: 13,
+    color: 'red'
+  }
 });
 
 export default Input;

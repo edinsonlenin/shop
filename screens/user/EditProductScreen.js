@@ -1,18 +1,19 @@
-import React, { useState, useReducer, useCallback } from "react";
+import React, { useEffect, useState, useReducer, useCallback } from "react";
 import {
   View,
   StyleSheet,
-  Text,
   ScrollView,
-  TextInput,
   Platform,
   Alert,
+  KeyboardAvoidingView,
+  ActivityIndicator, Text
 } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import { useSelector, useDispatch } from "react-redux";
 
 import HeaderButton from "../../components/UI/HeaderButton";
 import Input from "../../components/UI/Input";
+import Colors from "../../constants/Colors";
 import * as productActions from "../../store/actions/products";
 
 const FORM_INPUT_CHANGE = "FORM_INPUT_CHANGE";
@@ -38,6 +39,8 @@ const formReducer = (state, action) => {
 };
 
 const EditProductScreen = ({ route, navigation }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
   const dispatch = useDispatch();
   const { productId } = route.params ?? {};
   let selectedProduct;
@@ -76,31 +79,40 @@ const EditProductScreen = ({ route, navigation }) => {
     [formDispatch]
   );
 
-  const save = () => {
+  const save = async () => {
     if (!formState.isFormValid) {
       Alert.alert("Error", "Invalid form entries", [{ text: "Ok" }]);
       return;
     }
-    if (productId) {
-      dispatch(
-        productActions.updateProduct(
-          productId,
-          formState.inputValues.title,
-          formState.inputValues.imageUrl,
-          formState.inputValues.description
-        )
-      );
-    } else {
-      dispatch(
-        productActions.addProduct(
-          formState.inputValues.title,
-          formState.inputValues.imageUrl,
-          formState.inputValues.description,
-          +formState.inputValues.price
-        )
-      );
+    setIsLoading(true);
+    setError(null);
+    try{
+
+      if (productId) {
+        await dispatch(
+          productActions.updateProduct(
+            productId,
+            formState.inputValues.title,
+            formState.inputValues.imageUrl,
+            formState.inputValues.description
+          )
+        );
+      } else {
+        await dispatch(
+          productActions.addProduct(
+            formState.inputValues.title,
+            formState.inputValues.imageUrl,
+            formState.inputValues.description,
+            +formState.inputValues.price
+          )
+        );
+      }
+      navigation.goBack();
     }
-    navigation.goBack();
+    catch(err){
+      setError(err.message);
+    }
+    setIsLoading(false);
   };
 
   React.useLayoutEffect(() => {
@@ -121,13 +133,27 @@ const EditProductScreen = ({ route, navigation }) => {
       ),
     });
   }, [navigation, formState, productId, dispatch]);
+
+  useEffect(() => {
+    if (error){
+      Alert.alert('Message', error, [{text: 'Ok'}]);
+    }
+  }, [error]);
+
+  if (isLoading) {
+    return <View style={StyleSheet.centered}>
+      <ActivityIndicator style={StyleSheet.text} size='large' color={Colors.primary} />
+    </View>
+  }
+
   return (
+    <KeyboardAvoidingView behavior="height" keyboardVerticalOffset={100} style={{flex:1}}>
     <ScrollView>
       <View style={styles.form}>
         <Input
           id="title"
           label="Title"
-          errorMessage="Title is required!"
+          errorMessage="Title is required!" 
           initialValue={selectedProduct ? selectedProduct.title : ""}
           initialValidity={!!selectedProduct}
           onChangeInput={onChangeInputHandler}
@@ -141,6 +167,7 @@ const EditProductScreen = ({ route, navigation }) => {
           initialValue={selectedProduct ? selectedProduct.imageUrl : ""}
           initialValidity={!!selectedProduct}
           onChangeInput={onChangeInputHandler}
+          required
         />
         {selectedProduct ? null : (
           <Input
@@ -161,9 +188,11 @@ const EditProductScreen = ({ route, navigation }) => {
           initialValue={selectedProduct ? selectedProduct.description : ""}
           initialValidity={!!selectedProduct}
           onChangeInput={onChangeInputHandler}
+          required
         />
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -171,19 +200,16 @@ const styles = StyleSheet.create({
   form: {
     margin: 20,
   },
-  formControl: {
-    width: "100%",
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  label: {
-    fontFamily: "open-sans-bold",
-    marginVertical: 2,
-  },
-  input: {
-    paddingHorizontal: 2,
-    paddingVertical: 2,
-    borderBottomColor: "#ccc",
-    borderBottomWidth: 1,
-  },
+  text: {
+    fontFamily: 'open-sans',
+    fontSize: 18,
+    textAlign: 'center'
+  }
 });
 
 export default EditProductScreen;
