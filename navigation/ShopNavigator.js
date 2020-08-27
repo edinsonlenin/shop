@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from 'react-redux';
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -131,7 +132,7 @@ const MyDrawer = () => {
 };
 
 const ShopNavigator = () => {
-  const [userToken, setUserToken] = useState(null);
+  const userToken = useSelector(state => state.auth.token);
   return (
     <NavigationContainer>
       {!userToken ? AuthNavigator() : MyDrawer()}

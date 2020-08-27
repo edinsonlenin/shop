@@ -1,11 +1,13 @@
-import React, { useReducer, useCallback } from "react";
-import { useDispatch } from 'react-redux';
+import React, { useReducer, useCallback, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import {
   ScrollView,
   View,
   KeyboardAvoidingView,
   StyleSheet,
   Button,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -37,6 +39,9 @@ const formReducer = (state, action) => {
 };
 
 const AuthScreen = (props) => {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
   const dispatch = useDispatch();
   const [formState, formDispatch] = useReducer(formReducer, {
     inputValues: {
@@ -61,6 +66,34 @@ const AuthScreen = (props) => {
     },
     [formDispatch]
   );
+
+  const authHandler = async () => {
+    let action;
+    action = isSignUp
+      ? authActions.signUp(
+          formState.inputValues.email,
+          formState.inputValues.password
+        )
+      : authActions.login(
+          formState.inputValues.email,
+          formState.inputValues.password
+        );
+    setIsLoading(true);
+    setError(null);
+    try {
+      await dispatch(action);
+    } catch (error) {
+      setError(error.message);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    if (error) {
+      return Alert.alert("Error", error, [{ text: "Ok" }]);
+    }
+  }, [error]);
+
   return (
     <KeyboardAvoidingView
       behavior="padding"
@@ -94,10 +127,22 @@ const AuthScreen = (props) => {
               initialValue=""
             />
             <View style={styles.buttonContainer}>
-              <Button title="Login" color={Colors.primary} onPress={signUpHandler} />
+              {isLoading ? (
+                <ActivityIndicator color={Colors.primary} />
+              ) : (
+                <Button
+                  title={isSignUp ? "Sign Up" : "Login"}
+                  color={Colors.primary}
+                  onPress={authHandler}
+                />
+              )}
             </View>
             <View style={styles.buttonContainer}>
-              <Button title="Switch to Sign Up" color={Colors.accent} />
+              <Button
+                title={isSignUp ? "Switch to Login" : "Switch to Sign Up"}
+                color={Colors.accent}
+                onPress={() => setIsSignUp((prevSate) => !prevSate)}
+              />
             </View>
           </ScrollView>
         </Card>
@@ -123,8 +168,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   buttonContainer: {
-    marginTop: 10
-  }
+    marginTop: 10,
+  },
 });
 
 export default AuthScreen;
