@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -12,7 +12,7 @@ import Colors from "../constants/Colors";
 import OrdersScreen from "../screens/shop/OrdersScreen";
 import UserProductsScreen from "../screens/user/UserProductsScreen";
 import EditProductScreen from "../screens/user/EditProductScreen";
-
+import AuthScreen from "../screens/user/AuthScreen";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -69,12 +69,25 @@ const AdminNavigator = () => (
   </Stack.Navigator>
 );
 
+const AuthNavigator = () => (
+  <Stack.Navigator screenOptions={screenOptions}>
+    <Stack.Screen
+      options={{ title: "Authorization" }}
+      name="Auth"
+      component={AuthScreen}
+    />
+  </Stack.Navigator>
+);
+
 const MyDrawer = () => {
   return (
     <Drawer.Navigator
       drawerContentOptions={{ activeTintColor: Colors.primary }}
     >
-      <Drawer.Screen name="Products" component={ProductsNavigator} options={{
+      <Drawer.Screen
+        name="Products"
+        component={ProductsNavigator}
+        options={{
           drawerLabel: "All Products",
           drawerIcon: (drawerConfig) => (
             <Ionicons
@@ -83,7 +96,8 @@ const MyDrawer = () => {
               color={drawerConfig.color}
             />
           ),
-        }}/>
+        }}
+      />
       <Drawer.Screen
         name="Orders"
         component={OrdersNavigator}
@@ -98,7 +112,10 @@ const MyDrawer = () => {
           ),
         }}
       />
-      <Drawer.Screen name="Admin" component={AdminNavigator} options={{
+      <Drawer.Screen
+        name="Admin"
+        component={AdminNavigator}
+        options={{
           drawerLabel: "Admin",
           drawerIcon: (drawerConfig) => (
             <Ionicons
@@ -107,13 +124,19 @@ const MyDrawer = () => {
               color={drawerConfig.color}
             />
           ),
-        }}/>
+        }}
+      />
     </Drawer.Navigator>
   );
 };
 
 const ShopNavigator = () => {
-  return <NavigationContainer>{MyDrawer()}</NavigationContainer>;
+  const [userToken, setUserToken] = useState(null);
+  return (
+    <NavigationContainer>
+      {!userToken ? AuthNavigator() : MyDrawer()}
+    </NavigationContainer>
+  );
 };
 
 export default ShopNavigator;

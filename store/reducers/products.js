@@ -17,7 +17,6 @@ const initialState = {
 export default (state = initialState, action) => {
   switch (action.type) {
     case FETCH_PRODUCTS:
-      console.log(action.products);
       return {
         availableProducts: action.products,
         userProducts: action.products.filter(p => p.ownerId === 'u1')

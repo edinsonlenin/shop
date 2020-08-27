@@ -1,12 +1,18 @@
-import React, { useLayoutEffect } from "react";
-import { Platform, StyleSheet, Text, FlatList } from "react-native";
-import { useSelector } from "react-redux";
+import React, { useLayoutEffect, useEffect, useState } from "react";
+import { Platform, StyleSheet, Text, FlatList, ActivityIndicator, View } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 import HeaderButton from "../../components/UI/HeaderButton";
 import OrderItem from "../../components/shop/OrderItem";
+import * as actionOrders from '../../store/actions/orders';
+import Colors from "../../constants/Colors";
 
 const OrdersScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
+  const orders = useSelector((state) => state.orders.orders);
+  
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -23,7 +29,23 @@ const OrdersScreen = ({ navigation }) => {
     });
   }, [navigation]);
 
-  const orders = useSelector((state) => state.orders.orders);
+  const fetchOrderHandler = async () => {
+    setIsLoading(true);
+    await dispatch(actionOrders.fetchOrders());
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    fetchOrderHandler();
+  }, [dispatch]);
+
+
+  if(isLoading) {
+    return (<View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+      <ActivityIndicator size='large' color={Colors.primary} />
+    </View>)
+  }
+
   return (
     <FlatList
       data={orders}
