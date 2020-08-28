@@ -30,7 +30,7 @@ export default function App() {
 
   const rootReducer = combineReducers({ products: productsReducer, cart: cartReducer, orders: ordersReducer, auth: authReducer });
   const store = createStore(rootReducer, applyMiddleware(ReactThunk));
-
+  console.log(store);
   return (
     <Provider store={store}>
       <ShopNavigator />

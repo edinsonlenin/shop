@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import { useSelector, connect } from 'react-redux';
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -131,13 +131,31 @@ const MyDrawer = () => {
   );
 };
 
-const ShopNavigator = () => {
-  const userToken = useSelector(state => state.auth.token);
+const ShopNavigator = ({auth}) => {
+  // const [token, setToken] = useState(null);
+  // const onChangeToken = (value) => {
+  //   setToken(value);
+  // };
+
+  // useEffect(() => {
+  //   onChangeToken(auth.token);
+  // }, [auth.token]);
+  const token = useSelector(state => state.auth.token);
+
   return (
     <NavigationContainer>
-      {!userToken ? AuthNavigator() : MyDrawer()}
+      {!token ? AuthNavigator() : MyDrawer()}
     </NavigationContainer>
   );
 };
+
+// const mapStateToProps = state => ({
+//   auth: state.auth
+// });
+
+// export default connect(
+//  mapStateToProps,
+//  null
+// )(ShopNavigator);
 
 export default ShopNavigator;
