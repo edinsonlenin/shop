@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, connect } from "react-redux";
+import { useDispatch, connect } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import { Platform, AsyncStorage, ActivityIndicator, View } from "react-native";
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from "@react-navigation/drawer";
+import { Platform, AsyncStorage, ActivityIndicator, View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import ProductsOverviewScreens from "../screens/shop/ProductsOverviewScreen";
@@ -85,17 +85,36 @@ const AuthNavigator = () => (
 const LoadingNavigator = () => (
   <Stack.Navigator screenOptions={screenOptions}>
     <Stack.Screen
-      options={{ title: "Shop" }}
+      options={{ title: "Loading..." }}
       name="Loading"
       component={LoadingScreen}
     />
   </Stack.Navigator>
 );
 
+const CustomDrawerContent = (props) => {
+  const dispatch = useDispatch();
+  return (
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      <DrawerItem {...props}
+        icon={({ focused, color, size }) => <Ionicons
+        name={Platform.OS === "android" ? "md-exit" : "ios-exit"}
+        size={30}
+        color={Colors.primary}
+      />}
+        label={() => <Text style={{ fontFamily: 'open-sans-bold', fontSize: 18, color: Colors.primary }}>Logout</Text>}
+        onPress={() => dispatch(authActions.logout())}
+      />
+    </DrawerContentScrollView>
+  );
+}
+
 const MyDrawer = () => {
   return (
     <Drawer.Navigator
       drawerContentOptions={{ activeTintColor: Colors.primary }}
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen
         name="Products"
@@ -150,19 +169,13 @@ const ShopNavigator = ({ auth, login }) => {
   useEffect(() => {
     const loadInfo = async () => {
       const auth = await AsyncStorage.getItem("auth");
-      console.log(auth, "loadinfo");
-      let token, userId, expirationDate, authorization;
-      if (auth) {
-        authorization = JSON.parse(auth);
-        console.log(authorization);
-        token = authorization.token;
-        userId = authorization.userId;
-        expirationDate = new Date(authorization.expirationDate);
-
-        if (token && userId && expirationDate >= new Date()) {
-          setToken(token);
-          login(token, userId);
-        }
+      if (!auth) return;
+      const authorization = JSON.parse(auth);
+      const { token, userId, expirationDate } = authorization;
+      if (token && userId && new Date(expirationDate) >= new Date()) {
+        const expirationTime = new Date(expirationDate).getTime() - new Date().getTime();
+        setToken(token);
+        login(token, userId, expirationTime);
       }
     };
     setIsLoading(true);
@@ -174,11 +187,12 @@ const ShopNavigator = ({ auth, login }) => {
     setToken(auth.token);
   }, [auth.token]);
 
+  // if (isLoading) {
+  //   return LoadingScreen()
+  // }
+
   if (isLoading) {
-    return LoadingScreen()
-      // <NavigationContainer>
-      //   { LoadingNavigator() }
-      // </NavigationContainer>
+    return <NavigationContainer>{LoadingNavigator()}</NavigationContainer>;
   }
 
   return (
@@ -194,7 +208,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    login: (token, userId) => dispatch(authActions.authenticate(token, userId)),
+    login: (token, userId, expirationTime) => dispatch(authActions.authenticate(token, userId, expirationTime)),
   };
 };
 

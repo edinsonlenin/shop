@@ -11,7 +11,6 @@ import Colors from "../../constants/Colors";
 
 const ProductsOverviewScreen = ({ navigation }) => {
   React.useLayoutEffect(() => {
-    alert('useLayoutEffect', 'ProductOverviewScreen');
     navigation.setOptions({
       headerRight: () => (
         <HeaderButtons HeaderButtonComponent={HeaderButton}>
@@ -42,12 +41,12 @@ const ProductsOverviewScreen = ({ navigation }) => {
   const [error, setError] = useState(null);
   const products = useSelector((state) => state.products.availableProducts);
   const dispatch = useDispatch();
-
   const loadProducts = async () => {
     setError(null);
     setIsLoading(true);
     try {
       await dispatch(productActions.fetchProducts());
+      
     }
     catch(err){
       setError(err.message);
