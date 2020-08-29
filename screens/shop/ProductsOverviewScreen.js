@@ -11,6 +11,7 @@ import Colors from "../../constants/Colors";
 
 const ProductsOverviewScreen = ({ navigation }) => {
   React.useLayoutEffect(() => {
+    alert('useLayoutEffect', 'ProductOverviewScreen');
     navigation.setOptions({
       headerRight: () => (
         <HeaderButtons HeaderButtonComponent={HeaderButton}>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, connect } from 'react-redux';
+import { useSelector, connect } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { Platform } from "react-native";
+import { Platform, AsyncStorage, ActivityIndicator, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import ProductsOverviewScreens from "../screens/shop/ProductsOverviewScreen";
@@ -14,6 +14,8 @@ import OrdersScreen from "../screens/shop/OrdersScreen";
 import UserProductsScreen from "../screens/user/UserProductsScreen";
 import EditProductScreen from "../screens/user/EditProductScreen";
 import AuthScreen from "../screens/user/AuthScreen";
+import LoadingScreen from "../screens/user/LoadingScreen";
+import * as authActions from "../store/actions/auth";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -80,6 +82,16 @@ const AuthNavigator = () => (
   </Stack.Navigator>
 );
 
+const LoadingNavigator = () => (
+  <Stack.Navigator screenOptions={screenOptions}>
+    <Stack.Screen
+      options={{ title: "Shop" }}
+      name="Loading"
+      component={LoadingScreen}
+    />
+  </Stack.Navigator>
+);
+
 const MyDrawer = () => {
   return (
     <Drawer.Navigator
@@ -131,16 +143,43 @@ const MyDrawer = () => {
   );
 };
 
-const ShopNavigator = ({auth}) => {
-  // const [token, setToken] = useState(null);
-  // const onChangeToken = (value) => {
-  //   setToken(value);
-  // };
+const ShopNavigator = ({ auth, login }) => {
+  const [token, setToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // useEffect(() => {
-  //   onChangeToken(auth.token);
-  // }, [auth.token]);
-  const token = useSelector(state => state.auth.token);
+  useEffect(() => {
+    const loadInfo = async () => {
+      const auth = await AsyncStorage.getItem("auth");
+      console.log(auth, "loadinfo");
+      let token, userId, expirationDate, authorization;
+      if (auth) {
+        authorization = JSON.parse(auth);
+        console.log(authorization);
+        token = authorization.token;
+        userId = authorization.userId;
+        expirationDate = new Date(authorization.expirationDate);
+
+        if (token && userId && expirationDate >= new Date()) {
+          setToken(token);
+          login(token, userId);
+        }
+      }
+    };
+    setIsLoading(true);
+    loadInfo();
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    setToken(auth.token);
+  }, [auth.token]);
+
+  if (isLoading) {
+    return LoadingScreen()
+      // <NavigationContainer>
+      //   { LoadingNavigator() }
+      // </NavigationContainer>
+  }
 
   return (
     <NavigationContainer>
@@ -149,13 +188,16 @@ const ShopNavigator = ({auth}) => {
   );
 };
 
-// const mapStateToProps = state => ({
-//   auth: state.auth
-// });
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
 
-// export default connect(
-//  mapStateToProps,
-//  null
-// )(ShopNavigator);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    login: (token, userId) => dispatch(authActions.authenticate(token, userId)),
+  };
+};
 
-export default ShopNavigator;
+export default connect(mapStateToProps, mapDispatchToProps)(ShopNavigator);
+
+//export default ShopNavigator;
